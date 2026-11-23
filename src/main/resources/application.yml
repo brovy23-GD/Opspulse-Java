@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: opspulse-java
+  datasource:
+    url: jdbc:h2:mem:opspulse;MODE=PostgreSQL;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: ""
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: create-drop
+  jackson:
+    default-property-inclusion: non_null
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+server:
+  error:
+    include-message: never

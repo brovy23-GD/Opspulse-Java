@@ -1,0 +1,16 @@
+package com.rovy.opspulse.dto;
+import com.rovy.opspulse.domain.*;
+import java.time.Instant;
+public final class Responses {
+    private Responses() {}
+    public record ServiceView(Long id,String serviceKey,String name,String environment,HealthState health,Instant createdAt) {
+        public static ServiceView from(ManagedService s){return new ServiceView(s.getId(),s.getServiceKey(),s.getName(),s.getEnvironment(),s.getHealth(),s.getCreatedAt());}
+    }
+    public record IncidentView(Long id,Long serviceId,String title,Severity severity,IncidentStatus status,Instant openedAt,Instant resolvedAt) {
+        public static IncidentView from(Incident i){return new IncidentView(i.getId(),i.getService().getId(),i.getTitle(),i.getSeverity(),i.getStatus(),i.getOpenedAt(),i.getResolvedAt());}
+    }
+    public record ObservationView(Long id,Long serviceId,HealthState health,String note,Instant observedAt) {
+        public static ObservationView from(HealthObservation o){return new ObservationView(o.getId(),o.getService().getId(),o.getHealth(),o.getNote(),o.getObservedAt());}
+    }
+    public record Dashboard(long totalServices,long healthy,long degraded,long down,long unknown,long activeIncidents) {}
+}
