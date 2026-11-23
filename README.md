@@ -1,16 +1,24 @@
 ![OpsPulse Java banner](assets/opspulse-banner.svg)
 
-# OpsPulse Java — Infrastructure Operations API
+# OpsPulse Java — Infrastructure Operations Dashboard
 
 ![Java 21](https://img.shields.io/badge/Java-21-007396?logo=openjdk&logoColor=white) ![Spring Boot 3.5.16](https://img.shields.io/badge/Spring%20Boot-3.5.16-6DB33F?logo=springboot&logoColor=white) ![Maven](https://img.shields.io/badge/Build-Maven-C71A36?logo=apachemaven&logoColor=white) [![Java CI](https://github.com/brovy23-GD/Opspulse-Java/actions/workflows/ci.yml/badge.svg)](https://github.com/brovy23-GD/Opspulse-Java/actions/workflows/ci.yml)
 
-**Java 21 and Spring Boot REST API for managing infrastructure services, manually reported health observations, incidents and operational summaries.**
+**Java 21 and Spring Boot infrastructure operations dashboard with a responsive web UI and REST API for managing services, manually reported health observations, incidents and operational summaries.**
 
 Built by [Bobby Rovy](https://github.com/brovy23-GD) | [LinkedIn](https://www.linkedin.com/in/bobbyrovy)
 
 ## Overview
 
-OpsPulse is an enterprise-style backend portfolio project demonstrating Spring Web, data persistence, validation, layered architecture, REST design and CI automation. It is unrelated to the athlete training features in [NextRep Java](https://github.com/brovy23-GD/Next-Rep-Java) and [Skill Builder Pro](https://github.com/brovy23-GD/Skill-Builder-Pro).
+OpsPulse is an enterprise-style full-stack Java portfolio project demonstrating a responsive browser dashboard served directly by Spring Boot, Spring Web, data persistence, validation, layered architecture, REST design and CI automation. It is unrelated to the athlete training features in [NextRep Java](https://github.com/brovy23-GD/Next-Rep-Java) and [Skill Builder Pro](https://github.com/brovy23-GD/Skill-Builder-Pro).
+
+## Dashboard (new)
+
+Run the Spring Boot application and open **[http://localhost:8080/](http://localhost:8080/)** to use the dashboard. It is served as static HTML, CSS and JavaScript by the existing Spring Boot application—there is no separate frontend server, npm build or external charting dependency.
+
+The dashboard includes live API-backed summary cards, a donut chart of manually reported service health, searchable and filterable service inventory, service registration, manual health observation entry, incident creation and incident state transitions. It also provides responsive mobile layouts, loading/empty states, form validation and API error feedback.
+
+**Important:** This is an *interactive local UI*, not a publicly hosted service or automatic infrastructure monitoring platform. Its counts derive from reported health data and incidents saved by the API. The interface does not fetch real monitoring telemetry or provide historical uptime charts. The UI and API are intentionally unauthenticated in this portfolio prototype; do not expose them on the public Internet.
 
 ## Implemented features
 
@@ -31,6 +39,7 @@ OpsPulse is an enterprise-style backend portfolio project demonstrating Spring W
 | --- | --- |
 | Language and build | Java 21, Apache Maven |
 | Framework | Spring Boot 3.5.16, Spring Web |
+| Frontend | Vanilla HTML5, CSS3, JavaScript, responsive design, accessible native controls |
 | Data layer | Spring Data JPA, Hibernate, H2, optional PostgreSQL |
 | Validation and errors | Jakarta Bean Validation, centralized exception handler |
 | Testing | JUnit Jupiter, Spring Boot Test, MockMvc |
@@ -40,7 +49,8 @@ OpsPulse is an enterprise-style backend portfolio project demonstrating Spring W
 
 ```mermaid
 flowchart LR
-  Client[API client] --> Controller[REST controller + validation]
+  Browser[Dashboard browser UI] --> Controller[REST controller + validation]
+  Client[API clients] --> Controller
   Controller --> Logic[OperationsService]
   Logic --> Persistence[Spring Data JPA repositories]
   Persistence --> Database[(H2 / PostgreSQL)]
@@ -62,7 +72,7 @@ $mvn = 'C:\Users\brovy\tools\apache-maven-3.9.9\bin\mvn.cmd'
 & $mvn spring-boot:run
 ```
 
-Open the application health endpoint at [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health). This reports the **OpsPulse process health**, not the health of managed services.
+Open **http://localhost:8080/** for the dashboard. The API is served from the same origin. Open the application health endpoint at [http://localhost:8080/actuator/health](http://localhost:8080/actuator/health). This reports the **OpsPulse process health**, not the health of managed services.
 
 ## Try the API (PowerShell)
 
@@ -93,7 +103,7 @@ Invoke-RestMethod "$base/dashboard"
 
 ## Tests and CI
 
-Run `mvn clean verify` to compile, execute JUnit and MockMvc tests, and package the Spring Boot application. The GitHub Actions [Java CI workflow](.github/workflows/ci.yml) runs the same Maven verification command using Temurin 21.
+Run `mvn clean verify` to compile, execute JUnit and MockMvc tests, and package the Spring Boot application. The GitHub Actions [Java CI workflow](.github/workflows/ci.yml) runs the same Maven verification command using Temurin 21, along with a Node.js JavaScript syntax check. Spring MockMvc integration tests verify that the dashboard page, CSS and JavaScript are served on the same origin as the API. The workflow does not run an automated browser or visual regression test.
 
 **Verification:** Do not assume tests pass solely because a workflow is present. Check the GitHub Actions badge and workflow run results. The unit test covers incident transitions; MockMvc integration tests exercise REST service registration, observations, incident lifecycle, dashboard calculations, validation errors and duplicate keys.
 
@@ -119,6 +129,7 @@ src/main/java/com/rovy/opspulse/
 src/main/resources/    H2 and PostgreSQL profiles
 src/test/java/         JUnit and MockMvc tests
 .github/workflows/     Maven CI
+src/main/resources/static/ Dashboard HTML and CSS/JS
 assets/                Repository banner
 docs/                  Architecture notes
 Dockerfile             Multi-stage image build
@@ -130,6 +141,8 @@ compose.yml            PostgreSQL and API stack
 - Health data is entered through APIs; there is no HTTP probing or scheduling.
 - H2 data is in-memory and resets on application restart.
 - No security authentication, authorization, audit logging, alerting, OpenAPI UI, tracing or cloud deployment.
+- Browser dashboard is connected to manually submitted API data; no independent probes, alert push, or real-time background streaming.
+- Frontend is covered by static-serving integration tests and syntax checking; automated end-to-end browser tests remain a future milestone.
 - Future milestones: **Spring Security, Flyway, scheduled HTTP probes, Testcontainers, OpenAPI, pagination and production-oriented configuration**.
 
 See [Contributing](CONTRIBUTING.md) and [Security](SECURITY.md). This repository is a learning and portfolio demonstration, not a claim of production deployment.
