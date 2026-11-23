@@ -2,7 +2,7 @@
 (function () {
   const apiBase = '/api/v1';
   const $ = (id) => document.getElementById(id);
-  const state = { services: [], incidents: [], dashboard: null, busy: false };
+  const state = { services: [], incidents: [], dashboard: null, busy: false, refreshId: 0, requestSequence: 0 };
   const fmt = new Intl.DateTimeFormat(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
   const colors = { HEALTHY: '#35d0a0', DEGRADED: '#f6bc62', DOWN: '#f17c87', UNKNOWN: '#77859a' };
 
@@ -26,7 +26,12 @@
   }
   function clearMessage() { $('notice').hidden = true; }
   async function api(path, options) {
-    const response = await fetch(apiBase + path, Object.assign({ headers: { Accept: 'application/json' } }, options || {}));
+    const settings = Object.assign({ headers: { Accept: 'application/json' } }, options || {});
+    const isGet = !settings.method || settings.method.toUpperCase() === 'GET';
+    if (isGet) settings.cache = 'no-store';
+    // A unique GET URL also bypasses stale intermediary caches, not just browser caches.
+    const url = apiBase + path + (isGet ? (path.includes('?') ? '&' : '?') + '_refresh=' + Date.now() + '-' + (++state.requestSequence) : '');
+    const response = await fetch(url, settings);
     let payload = null;
     try { payload = await response.json(); } catch (_) { /* empty/invalid JSON */ }
     if (!response.ok) {
@@ -128,21 +133,28 @@
     });
   }
   async function refresh(quiet) {
+    // Only the newest refresh may paint the dashboard: slower prior requests are ignored.
+    const refreshId = ++state.refreshId;
     try {
       const dashboard = await api('/dashboard');
-      const services = await api('/services');
-      const incidentGroups = await Promise.all(services.map((s) => api('/services/' + encodeURIComponent(s.id) + '/incidents')));
+      if (refreshId !== state.refreshId) return;
+      // Update counters immediately. A later inventory or incident-history error must
+      // never leave an already-resolved incident visible as an active summary count.
       state.dashboard = dashboard;
+      updateMetrics();
+      $('time-label').textContent = 'Refreshed ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      const services = await api('/services');
+      if (refreshId !== state.refreshId) return;
+      const incidentGroups = await Promise.all(services.map((s) => api('/services/' + encodeURIComponent(s.id) + '/incidents')));
+      if (refreshId !== state.refreshId) return;
       state.services = services;
       state.incidents = incidentGroups.flat();
       fillServiceSelectors();
-      updateMetrics();
       displayServices();
       displayIncidents();
-      $('time-label').textContent = 'Refreshed ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
       if (!quiet) alertMessage('Dashboard refreshed successfully.', false);
     } catch (error) {
-      alertMessage('Unable to load operations data: ' + error.message, true);
+      if (refreshId === state.refreshId) alertMessage('Unable to load operations data: ' + error.message, true);
     }
   }
   async function mutate(action, message, after) {
