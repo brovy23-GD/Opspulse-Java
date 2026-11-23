@@ -19,5 +19,7 @@ jobs:
           node-version: '22'
       - name: Validate dashboard JavaScript syntax
         run: node --check src/main/resources/static/dashboard/app.js
+      - name: Test dashboard refresh behavior
+        run: node --test tests/dashboard-refresh.test.cjs
       - name: Test and package
         run: mvn -B -ntp clean verify
