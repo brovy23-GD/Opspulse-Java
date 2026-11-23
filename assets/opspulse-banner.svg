@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 420" role="img" aria-labelledby="title desc">
+<title id="title">OpsPulse Java — Infrastructure Operations API</title>
+<desc id="desc">Obsidian blue enterprise technology banner with service health, incident management and Java branding.</desc>
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#07101c"/><stop offset="0.55" stop-color="#142a42"/><stop offset="1" stop-color="#08121f"/></linearGradient><linearGradient id="metal" x2="0" y2="1"><stop stop-color="#ffffff"/><stop offset="1" stop-color="#8facc5"/></linearGradient></defs>
+<rect width="1440" height="420" fill="url(#bg)"/>
+<g stroke="#2a6285" opacity=".33" fill="none"><path d="M0 100h1440M0 200h1440M0 300h1440M200 0v420M400 0v420M600 0v420M800 0v420M1000 0v420M1200 0v420"/><path d="M0 420 420 0M450 420 910 0M960 420 1380 0"/></g>
+<path d="M80 210h150l30-65 40 120 35-55h165" fill="none" stroke="#2fc7ff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="95" y="123" font-family="Arial,Helvetica,sans-serif" font-size="84" font-weight="800" fill="url(#metal)">OpsPulse</text>
+<text x="500" y="123" font-family="Arial,Helvetica,sans-serif" font-size="84" font-weight="800" fill="#3dc1fc">Java</text>
+<text x="98" y="178" font-family="Arial,Helvetica,sans-serif" font-size="29" letter-spacing="7" fill="#c5d9ec">INFRASTRUCTURE OPERATIONS API</text>
+<g font-family="Arial,Helvetica,sans-serif" font-size="23" fill="#dce8f4"><text x="99" y="335">SPRING BOOT</text><text x="323" y="335">•</text><text x="362" y="335">JAVA 21</text><text x="520" y="335">•</text><text x="559" y="335">MAVEN</text><text x="705" y="335">•</text><text x="745" y="335">REST APIs</text><text x="908" y="335">•</text><text x="946" y="335">JPA</text><text x="1046" y="335">•</text><text x="1087" y="335">TESTING + CI</text></g>
+<g transform="translate(1020 80)" fill="none" stroke="#45b8ef" stroke-width="4"><rect width="250" height="170" rx="18" stroke-opacity=".5"/><circle cx="55" cy="58" r="15" fill="#32d39a" stroke="none"/><circle cx="125" cy="58" r="15" fill="#ffd16b" stroke="none"/><circle cx="194" cy="58" r="15" fill="#f07780" stroke="none"/><path d="M30 122h35l14-25 25 45 17-20h103"/></g>
+<path d="M0 376h1440" stroke="#20aefa" stroke-width="4"/>
+</svg>

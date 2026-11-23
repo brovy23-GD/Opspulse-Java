@@ -1,0 +1,29 @@
+package com.rovy.opspulse.domain;
+import jakarta.persistence.*;
+import java.time.Instant;
+@Entity
+@Table(name="incidents")
+public class Incident {
+    @Id @GeneratedValue(strategy=GenerationType.IDENTITY) private Long id;
+    @ManyToOne(optional=false,fetch=FetchType.EAGER) @JoinColumn(name="service_id",nullable=false) private ManagedService service;
+    @Column(nullable=false,length=180) private String title;
+    @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private Severity severity;
+    @Enumerated(EnumType.STRING) @Column(nullable=false,length=20) private IncidentStatus status=IncidentStatus.OPEN;
+    @Column(nullable=false) private Instant openedAt=Instant.now();
+    private Instant resolvedAt;
+    protected Incident() {}
+    public Incident(ManagedService service,String title,Severity severity){this.service=service;this.title=title;this.severity=severity;}
+    public Long getId(){return id;}
+    public ManagedService getService(){return service;}
+    public String getTitle(){return title;}
+    public Severity getSeverity(){return severity;}
+    public IncidentStatus getStatus(){return status;}
+    public Instant getOpenedAt(){return openedAt;}
+    public Instant getResolvedAt(){return resolvedAt;}
+    public void transitionTo(IncidentStatus next) {
+        if (status == IncidentStatus.RESOLVED && next != IncidentStatus.RESOLVED)
+            throw new IllegalStateException("Resolved incidents cannot be reopened");
+        status=next;
+        resolvedAt=next == IncidentStatus.RESOLVED ? Instant.now() : null;
+    }
+}
