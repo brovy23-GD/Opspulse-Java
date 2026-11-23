@@ -19,6 +19,9 @@ class DashboardPageTest {
     void dashboardIsServedAtRoot() throws Exception {
         mvc.perform(get("/"))
             .andExpect(status().isOk())
+            .andExpect(forwardedUrl("index.html"));
+        mvc.perform(get("/index.html"))
+            .andExpect(status().isOk())
             .andExpect(content().contentTypeCompatibleWith("text/html"))
             .andExpect(content().string(containsString("Infrastructure overview")))
             .andExpect(content().string(containsString("Record observation")))
