@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0a1020">
+  <meta name="description" content="OpsPulse infrastructure operations dashboard for service inventory, manually reported health and incidents.">
+  <title>OpsPulse | Infrastructure Operations</title>
+  <link rel="stylesheet" href="/dashboard/styles.css">
+  <script src="/dashboard/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand" href="/" aria-label="OpsPulse dashboard home">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 40 40"><path d="M2 21h8l5-12 7 23 6-11h10" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <span><strong>OpsPulse</strong><small>INFRASTRUCTURE OPS</small></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav aria-label="Main navigation">
+        <a class="nav-item selected" href="#overview"><span aria-hidden="true">▦</span> Overview</a>
+        <a class="nav-item" href="#services"><span aria-hidden="true">▤</span> Service inventory</a>
+        <a class="nav-item" href="#incidents"><span aria-hidden="true">◇</span> Incidents</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <span class="pill-outline">● LOCAL PROTOTYPE</span>
+        <p>Service status is manually reported. This dashboard does not run active monitoring probes.</p>
+        <a class="sidebar-link" href="/actuator/health">API health endpoint ↗</a>
+      </div>
+    </aside>
+
+    <main class="workspace" id="overview">
+      <header class="topbar">
+        <div class="crumb">OPERATIONS <span>/</span> <strong>Overview</strong></div>
+        <div class="top-actions"><span class="environment">DEMO / LOCAL</span><span id="time-label" class="timestamp" aria-live="off">—</span><button id="refresh" class="icon-button" title="Refresh data" aria-label="Refresh dashboard">↻</button></div>
+      </header>
+      <div class="content">
+        <div class="hero">
+          <div>
+            <div class="eyebrow"><span class="eyebrow-line"></span> OPERATIONS INTELLIGENCE</div>
+            <h1>Infrastructure overview<span class="hero-dot">.</span></h1>
+            <p>Service inventory, reported health, and incident response in one operational view.</p>
+          </div>
+          <button id="create-service-toggle" class="primary-btn"><span aria-hidden="true">＋</span> Register service</button>
+        </div>
+        <div id="notice" role="status" aria-live="polite" hidden></div>
+        <section class="summary-grid" aria-label="Current operating status">
+          <article class="stat-card"><div class="stat-top"><span>TOTAL SERVICES</span><span class="stat-symbol">▤</span></div><div class="stat-number" id="count-total">—</div><div class="stat-meta">Registered inventory</div></article>
+          <article class="stat-card"><div class="stat-top"><span>HEALTHY</span><span class="stat-symbol positive">●</span></div><div class="stat-number" id="count-healthy">—</div><div class="stat-meta"><span class="dot green"></span> Reported operational</div></article>
+          <article class="stat-card"><div class="stat-top"><span>DEGRADED / DOWN</span><span class="stat-symbol warn">◆</span></div><div class="stat-number" id="count-unhealthy">—</div><div class="stat-meta"><span class="dot amber"></span> Requires attention</div></article>
+          <article class="stat-card"><div class="stat-top"><span>ACTIVE INCIDENTS</span><span class="stat-symbol danger">⚑</span></div><div class="stat-number" id="count-incidents">—</div><div class="stat-meta">Open or investigating</div></article>
+        </section>
+        <div class="section-grid">
+          <section class="panel health-panel" aria-labelledby="health-title">
+            <div class="panel-heading"><div><div class="subheading">SERVICE HEALTH</div><h2 id="health-title">Reported status distribution</h2></div><span class="caption-pill">INVENTORY</span></div>
+            <div class="health-content">
+              <div class="donut" id="health-donut" aria-label="No service health data yet"><div class="donut-inner"><span id="donut-percent">—</span><small>HEALTHY</small></div></div>
+              <div class="legend" id="health-legend">
+                <div><span class="legend-left"><span class="dot green"></span>Healthy</span><strong id="legend-healthy">0</strong></div>
+                <div><span class="legend-left"><span class="dot amber"></span>Degraded</span><strong id="legend-degraded">0</strong></div>
+                <div><span class="legend-left"><span class="dot red"></span>Down</span><strong id="legend-down">0</strong></div>
+                <div><span class="legend-left"><span class="dot gray"></span>Unknown</span><strong id="legend-unknown">0</strong></div>
+              </div>
+            </div>
+            <p class="fine-print">Based on the latest manually submitted observation per service, not automatic uptime measurements.</p>
+          </section>
+          <section class="panel action-panel" aria-labelledby="actions-title">
+            <div class="panel-heading"><div><div class="subheading">OPERATOR ACTIONS</div><h2 id="actions-title">Record & respond</h2></div><span class="caption-pill">LIVE API</span></div>
+            <p>Record a service health observation or initiate an incident using the connected Spring Boot API.</p>
+            <form id="observe-form" class="compact-form">
+              <label for="observe-service">SERVICE</label><select id="observe-service" required><option value="">Choose a service</option></select>
+              <div class="two-fields"><div><label for="observe-status">HEALTH STATUS</label><select id="observe-status" required><option>HEALTHY</option><option>DEGRADED</option><option>DOWN</option><option>UNKNOWN</option></select></div><div><label for="observe-note">NOTE (OPTIONAL)</label><input id="observe-note" maxlength="250" placeholder="e.g. latency elevated"></div></div>
+              <button type="submit" class="secondary-btn">Record observation <span aria-hidden="true">→</span></button>
+            </form>
+          </section>
+        </div>
+
+        <section id="register-panel" class="panel register-panel" aria-labelledby="register-title" hidden>
+          <div class="panel-heading"><div><div class="subheading">SERVICE REGISTRATION</div><h2 id="register-title">Register a managed service</h2></div><button class="text-btn" id="close-register">Close ×</button></div>
+          <form id="register-form" class="register-fields">
+            <div><label for="service-key">SERVICE KEY</label><input id="service-key" required pattern="[a-zA-Z0-9_-]{2,60}" maxlength="60" placeholder="e.g. payments-api"></div>
+            <div><label for="service-name">DISPLAY NAME</label><input id="service-name" required maxlength="120" placeholder="e.g. Payments API"></div>
+            <div><label for="service-env">ENVIRONMENT</label><input id="service-env" required maxlength="60" placeholder="e.g. production"></div>
+            <button class="primary-btn" type="submit">Create service</button>
+          </form>
+        </section>
+
+        <section class="panel table-panel" id="services" aria-labelledby="services-title">
+          <div class="panel-heading"><div><div class="subheading">ASSET INVENTORY</div><h2 id="services-title">Managed services <span id="service-count" class="muted-count"></span></h2></div><div class="table-tools"><label class="sr-only" for="search-services">Search services</label><input id="search-services" type="search" placeholder="Search services…" aria-label="Search services"><label class="sr-only" for="filter-health">Filter by health</label><select id="filter-health" aria-label="Filter by health"><option value="">All statuses</option><option>HEALTHY</option><option>DEGRADED</option><option>DOWN</option><option>UNKNOWN</option></select></div></div>
+          <div class="table-scroll"><table><thead><tr><th scope="col">SERVICE</th><th scope="col">ENVIRONMENT</th><th scope="col">REPORTED HEALTH</th><th scope="col">REGISTERED</th><th scope="col">ACTION</th></tr></thead><tbody id="services-body"><tr><td colspan="5" class="empty">Loading service inventory…</td></tr></tbody></table></div>
+        </section>
+        <section class="panel table-panel" id="incidents" aria-labelledby="incidents-title">
+          <div class="panel-heading"><div><div class="subheading">INCIDENT RESPONSE</div><h2 id="incidents-title">Incidents <span id="incident-count" class="muted-count"></span></h2></div><button id="new-incident-toggle" class="secondary-btn small">＋ Open incident</button></div>
+          <form id="incident-form" class="register-fields incident-fields" hidden>
+            <div><label for="incident-service">SERVICE</label><select id="incident-service" required><option value="">Choose service</option></select></div>
+            <div><label for="incident-title">INCIDENT TITLE</label><input id="incident-title" required maxlength="180" placeholder="Describe the issue"></div>
+            <div><label for="incident-severity">SEVERITY</label><select id="incident-severity"><option>LOW</option><option selected>MEDIUM</option><option>HIGH</option><option>CRITICAL</option></select></div>
+            <button class="primary-btn" type="submit">Open incident</button>
+          </form>
+          <div class="table-scroll"><table><thead><tr><th scope="col">INCIDENT</th><th scope="col">SERVICE</th><th scope="col">SEVERITY</th><th scope="col">STATE</th><th scope="col">OPENED</th><th scope="col">ACTION</th></tr></thead><tbody id="incidents-body"><tr><td colspan="6" class="empty">Loading incidents…</td></tr></tbody></table></div>
+          <p class="fine-print">Incidents are retrieved per registered service; a resolved incident is retained in the record. This prototype cannot reopen resolved incidents.</p>
+        </section>
+        <footer>OPSPULSE <span>·</span> ENTERPRISE JAVA PORTFOLIO <span>·</span> LOCAL DEMONSTRATION <a href="https://github.com/brovy23-GD/Opspulse-Java" rel="noopener noreferrer" target="_blank">GitHub repository ↗</a></footer>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
