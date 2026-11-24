@@ -10,6 +10,12 @@ import java.util.List;
 @ConfigurationProperties(prefix = "opspulse.monitor")
 public class MonitorSettings {
     private boolean enabled = false;
+    private int failureThreshold = 3;
+    private int recoveryThreshold = 2;
+    public int getFailureThreshold() { return failureThreshold; }
+    public void setFailureThreshold(int value) { failureThreshold = value; }
+    public int getRecoveryThreshold() { return recoveryThreshold; }
+    public void setRecoveryThreshold(int value) { recoveryThreshold = value; }
     private List<Target> targets = new ArrayList<>();
     public boolean isEnabled() { return enabled; }
     public void setEnabled(boolean enabled) { this.enabled = enabled; }
