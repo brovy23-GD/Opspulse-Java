@@ -132,6 +132,29 @@
       tbody.append(tr);
     });
   }
+  function displayMonitor(monitor) {
+    $('monitor-enabled').textContent = monitor.enabled ? 'LIVE / SCHEDULED' : 'OFF / OPT-IN';
+    number('monitor-count', '(' + monitor.recentChecks.length + ' recent)');
+    $('monitor-description').textContent = monitor.enabled
+      ? 'Monitoring ' + monitor.configuredTargets + ' configured HTTPS endpoint(s) every 60 seconds. Health changes are saved as observations.'
+      : 'Automatic checks are off. Configure the trusted target URLs and enable monitoring in application settings to start collecting real HTTP status and latency.';
+    const tbody = $('monitor-body');
+    tbody.replaceChildren();
+    if (!monitor.recentChecks.length) {
+      const tr = el('tr'); const td = el('td', monitor.enabled ? 'No checks yet; the first scheduled check runs after the configured interval.' : 'No automatic check history. Demo data is simulated.', 'empty');
+      td.colSpan = 5; tr.append(td); tbody.append(tr); return;
+    }
+    monitor.recentChecks.forEach((check) => {
+      const tr = el('tr');
+      const service = el('td', check.serviceName, 'service-primary');
+      const result = el('td');
+      result.append(badge(check.successful ? 'HEALTHY' : 'DOWN', 'health'));
+      const http = el('td', check.httpStatus === null ? check.detail : check.httpStatus);
+      const latency = el('td', check.latencyMs + ' ms');
+      const checked = el('td', new Date(check.checkedAt).toLocaleString(), 'timestamp-cell');
+      tr.append(service, result, http, latency, checked); tbody.append(tr);
+    });
+  }
   async function refresh(quiet) {
     // Only the newest refresh may paint the dashboard: slower prior requests are ignored.
     const refreshId = ++state.refreshId;
@@ -152,6 +175,8 @@
       fillServiceSelectors();
       displayServices();
       displayIncidents();
+      try { displayMonitor(await api('/monitor')); }
+      catch (monitorError) { $('monitor-description').textContent = 'Monitoring check history unavailable: ' + monitorError.message; }
       if (!quiet) alertMessage('Dashboard refreshed successfully.', false);
     } catch (error) {
       if (refreshId === state.refreshId) alertMessage('Unable to load operations data: ' + error.message, true);
