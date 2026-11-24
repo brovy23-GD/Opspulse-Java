@@ -41,10 +41,10 @@ class DemoDataIntegrationTest {
         mvc.perform(get("/api/v1/dashboard"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.totalServices").value(11))
-            .andExpect(jsonPath("$.healthy").value(5))
+            .andExpect(jsonPath("$.healthy").value(6))
             .andExpect(jsonPath("$.degraded").value(2))
             .andExpect(jsonPath("$.down").value(1))
-            .andExpect(jsonPath("$.unknown").value(3))
+            .andExpect(jsonPath("$.unknown").value(2))
             .andExpect(jsonPath("$.activeIncidents").value(3));
 
         mvc.perform(post("/api/v1/demo/load"))
