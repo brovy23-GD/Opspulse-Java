@@ -21,10 +21,11 @@
         <a class="nav-item selected" href="#overview"><span aria-hidden="true">▦</span> Overview</a>
         <a class="nav-item" href="#services"><span aria-hidden="true">▤</span> Service inventory</a>
         <a class="nav-item" href="#incidents"><span aria-hidden="true">◇</span> Incidents</a>
+        <a class="nav-item" href="#monitoring"><span aria-hidden="true">◉</span> HTTP monitoring</a>
       </nav>
       <div class="sidebar-bottom">
         <span class="pill-outline">● LOCAL PROTOTYPE</span>
-        <p>Service status is manually reported. This dashboard does not run active monitoring probes.</p>
+        <p>Demo service status is simulated. Opt-in HTTPS monitoring is available for operator-configured endpoints.</p>
         <a class="sidebar-link" href="/actuator/health">API health endpoint ↗</a>
       </div>
     </aside>
@@ -39,7 +40,7 @@
           <div>
             <div class="eyebrow"><span class="eyebrow-line"></span> OPERATIONS INTELLIGENCE</div>
             <h1>Infrastructure overview<span class="hero-dot">.</span></h1>
-            <p>Service inventory, reported health, and incident response in one operational view.</p>
+            <p>Service inventory, reported health, scheduled HTTPS checks, and incident response in one operational view.</p>
           </div>
           <div class="hero-actions"><button id="load-demo-data" class="secondary-btn" type="button" title="Add ten fictional services and example incidents; existing records will be kept">◇ Load demo data</button><button id="create-service-toggle" class="primary-btn"><span aria-hidden="true">＋</span> Register service</button></div>
         </div>
@@ -63,7 +64,7 @@
                 <div><span class="legend-left"><span class="dot gray"></span>Unknown</span><strong id="legend-unknown">0</strong></div>
               </div>
             </div>
-            <p class="fine-print">Based on the latest manually submitted observation per service, not automatic uptime measurements.</p>
+            <p class="fine-print">Based on the latest observation per service. Demo entries are simulated; configured HTTPS monitors record actual checks.</p>
           </section>
           <section class="panel action-panel" aria-labelledby="actions-title">
             <div class="panel-heading"><div><div class="subheading">OPERATOR ACTIONS</div><h2 id="actions-title">Record & respond</h2></div><span class="caption-pill">LIVE API</span></div>
@@ -86,6 +87,12 @@
           </form>
         </section>
 
+        <section class="panel table-panel monitor-panel" id="monitoring" aria-labelledby="monitoring-title">
+          <div class="panel-heading"><div><div class="subheading">LIVE SERVICE CHECKS</div><h2 id="monitoring-title">HTTP monitoring <span id="monitor-count" class="muted-count"></span></h2></div><span id="monitor-enabled" class="caption-pill">OPT-IN</span></div>
+          <p class="monitor-intro" id="monitor-description">Checking monitoring configuration…</p>
+          <div class="table-scroll"><table><thead><tr><th scope="col">SERVICE</th><th scope="col">RESULT</th><th scope="col">HTTP STATUS</th><th scope="col">LATENCY</th><th scope="col">CHECKED</th></tr></thead><tbody id="monitor-body"><tr><td class="empty" colspan="5">Loading check history…</td></tr></tbody></table></div>
+          <p class="fine-print">Monitoring runs only for explicitly configured HTTPS endpoints. Demo health and incident records are not probe measurements. HTTP checks do not create or close incidents automatically.</p>
+        </section>
         <section class="panel table-panel" id="services" aria-labelledby="services-title">
           <div class="panel-heading"><div><div class="subheading">ASSET INVENTORY</div><h2 id="services-title">Managed services <span id="service-count" class="muted-count"></span></h2></div><div class="table-tools"><label class="sr-only" for="search-services">Search services</label><input id="search-services" type="search" placeholder="Search services…" aria-label="Search services"><label class="sr-only" for="filter-health">Filter by health</label><select id="filter-health" aria-label="Filter by health"><option value="">All statuses</option><option>HEALTHY</option><option>DEGRADED</option><option>DOWN</option><option>UNKNOWN</option></select></div></div>
           <div class="table-scroll"><table><thead><tr><th scope="col">SERVICE</th><th scope="col">ENVIRONMENT</th><th scope="col">REPORTED HEALTH</th><th scope="col">REGISTERED</th><th scope="col">ACTION</th></tr></thead><tbody id="services-body"><tr><td colspan="5" class="empty">Loading service inventory…</td></tr></tbody></table></div>

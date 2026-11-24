@@ -23,3 +23,10 @@ server:
 opspulse:
   demo:
     enabled: true
+  monitor:
+    enabled: ${OPSPULSE_MONITOR_ENABLED:false}
+    interval-ms: 60000
+    targets:
+      - service-key: live-example-https
+        name: Example HTTPS Endpoint
+        url: https://example.com/

@@ -26,7 +26,8 @@ class DashboardPageTest {
             .andExpect(content().string(containsString("Infrastructure overview")))
             .andExpect(content().string(containsString("Record observation")))
             .andExpect(content().string(containsString("Open incident")))
-            .andExpect(content().string(containsString("Service status is manually reported")));
+            .andExpect(content().string(containsString("HTTP monitoring")))
+            .andExpect(content().string(containsString("Opt-in HTTPS monitoring is available")));
     }
 
     @Test
