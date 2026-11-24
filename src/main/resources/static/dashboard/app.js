@@ -177,6 +177,7 @@
   }
   function setup() {
     $('refresh').addEventListener('click', () => refresh(false));
+    $('load-demo-data').addEventListener('click', () => mutate(() => api('/demo/load', { method: 'POST' }), 'Demo services and incidents loaded. Existing records were preserved.'));
     $('search-services').addEventListener('input', displayServices);
     $('filter-health').addEventListener('change', displayServices);
     $('create-service-toggle').addEventListener('click', () => { $('register-panel').hidden = false; $('service-key').focus(); });
