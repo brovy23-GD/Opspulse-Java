@@ -16,7 +16,7 @@ OpsPulse is an enterprise-style full-stack Java portfolio project demonstrating 
 
 Run the Spring Boot application and open **[http://localhost:8080/](http://localhost:8080/)** to use the dashboard. It is served as static HTML, CSS and JavaScript by the existing Spring Boot application—there is no separate frontend server, npm build or external charting dependency.
 
-The dashboard includes live API-backed summary cards, a donut chart of manually reported service health, searchable and filterable service inventory, service registration, manual health observation entry, incident creation and incident state transitions. It also provides responsive mobile layouts, loading/empty states, form validation and API error feedback.
+The dashboard includes an opt-in **Load demo data** button for ten fictional infrastructure services and five incidents (three active, two resolved). The loader preserves existing records and is idempotent: repeated clicks skip services with reserved `demo-` keys rather than creating duplicates. All demo health observations are simulated, never measured. The button is enabled in the default H2 local configuration and disabled for the PostgreSQL profile.\n\nThe dashboard includes live API-backed summary cards, a donut chart of manually reported service health, searchable and filterable service inventory, service registration, manual health observation entry, incident creation and incident state transitions. It also provides responsive mobile layouts, loading/empty states, form validation and API error feedback.
 
 **Important:** This is an *interactive local UI*, not a publicly hosted service or automatic infrastructure monitoring platform. Its counts derive from reported health data and incidents saved by the API. The interface does not fetch real monitoring telemetry or provide historical uptime charts. The UI and API are intentionally unauthenticated in this portfolio prototype; do not expose them on the public Internet.
 
@@ -98,12 +98,12 @@ Invoke-RestMethod "$base/dashboard"
 | `POST` | `/api/v1/incidents` | Open incident |
 | `GET` | `/api/v1/services/{id}/incidents` | Incident history |
 | `PATCH` | `/api/v1/incidents/{id}` | Update incident status |
-| `GET` | `/api/v1/dashboard` | Service and incident totals |
+| `GET` | `/api/v1/dashboard` | Service and incident totals |\n| `POST` | `/api/v1/demo/load` | Seed fictional data (enabled only with `opspulse.demo.enabled=true`) |
 | `GET` | `/actuator/health` | OpsPulse application status |
 
 ## Tests and CI
 
-Run `mvn clean verify` to compile, execute JUnit and MockMvc tests, and package the Spring Boot application. The GitHub Actions [Java CI workflow](.github/workflows/ci.yml) runs the same Maven verification command using Temurin 21, along with a Node.js JavaScript syntax check. Spring MockMvc integration tests verify that the dashboard page, CSS and JavaScript are served on the same origin as the API. The workflow does not run an automated browser or visual regression test.
+Run `mvn clean verify` to compile, execute JUnit and MockMvc tests, and package the Spring Boot application. The GitHub Actions [Java CI workflow](.github/workflows/ci.yml) runs the same Maven verification command using Temurin 21, along with Node.js JavaScript syntax and refresh-regression checks. Demo seed creation, idempotency, preserved existing records and incident status counts are covered by MockMvc tests. Spring MockMvc integration tests verify that the dashboard page, CSS and JavaScript are served on the same origin as the API. The workflow does not run an automated browser or visual regression test.
 
 **Verification:** Do not assume tests pass solely because a workflow is present. Check the GitHub Actions badge and workflow run results. The unit test covers incident transitions; MockMvc integration tests exercise REST service registration, observations, incident lifecycle, dashboard calculations, validation errors and duplicate keys.
 
@@ -139,7 +139,7 @@ compose.yml            PostgreSQL and API stack
 ## Current limitations and roadmap
 
 - Health data is entered through APIs; there is no HTTP probing or scheduling.
-- H2 data is in-memory and resets on application restart.
+- H2 data is in-memory and resets on application restart. Demo services are clearly identified by `demo-` keys and remain in the same in-memory database.\n- The demo-load endpoint is a write operation intended only for trusted local use. It is disabled under the PostgreSQL profile; set `opspulse.demo.enabled=false` for other environments. Do not expose this unauthenticated prototype publicly.
 - No security authentication, authorization, audit logging, alerting, OpenAPI UI, tracing or cloud deployment.
 - Browser dashboard is connected to manually submitted API data; no independent probes, alert push, or real-time background streaming.
 - Frontend is covered by static-serving integration tests and syntax checking; automated end-to-end browser tests remain a future milestone.
