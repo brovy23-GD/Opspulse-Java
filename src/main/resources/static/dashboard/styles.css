@@ -7,3 +7,6 @@
 .hero-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .demo-disclaimer{font-size:11px;color:#829bb4;margin:-23px 0 24px;line-height:1.5}
 @media(max-width:800px){.hero-actions{justify-content:flex-start}.demo-disclaimer{margin:-16px 0 22px}}
+
+.monitor-intro{color:#91a5bd;font-size:12px;padding:0 24px 15px;margin:0;line-height:1.65}
+.monitor-panel .fine-print{margin-bottom:18px}
