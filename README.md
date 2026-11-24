@@ -20,6 +20,23 @@ The dashboard includes an opt-in **Load demo data** button for ten fictional inf
 
 **Important:** This is an *interactive local UI*, not a publicly hosted service or automatic infrastructure monitoring platform. Its counts derive from reported health data and incidents saved by the API. The interface does not fetch real monitoring telemetry or provide historical uptime charts. The UI and API are intentionally unauthenticated in this portfolio prototype; do not expose them on the public Internet.
 
+## Automatic HTTPS monitoring (opt-in)
+
+OpsPulse now supports **actual scheduled HTTP GET checks** for trusted, operator-configured HTTPS URLs. It records the HTTP status code, measured request duration, check timestamp, and success or failure in a dedicated monitoring-history table, and adds an observation to the corresponding managed service. Checks are **not simulated** when enabled; the default demo data remains fictional.
+
+Monitoring is **disabled by default**. The sample configuration includes `https://example.com/` solely as an example of a public HTTPS endpoint; it is *not* one of your own systems. To enable it for a local run, open PowerShell and set the property **before** starting the application:
+
+```powershell
+$env:OPSPULSE_MONITOR_ENABLED = 'true'
+# Start your existing mvn spring-boot:run command in this same PowerShell session.
+```
+
+The first check starts approximately **60 seconds after startup**, then repeats roughly every 60 seconds (plus check duration). Open `http://localhost:8080/#monitoring` to see the most recent 30 results. A newly monitored service is created on the first completed check; check history is saved in the database alongside other OpsPulse records. To disable again, stop the application and set `$env:OPSPULSE_MONITOR_ENABLED = 'false'` before restarting. The H2 database still resets on restart.
+
+To monitor additional systems, edit **trusted configuration** under `opspulse.monitor.targets` in `src/main/resources/application.yml` (or provide an equivalent configuration source). Each target has a unique `service-key`, display `name`, and HTTPS `url`. Standard HTTPS on port 443 is required; user credentials, URL query strings, fragments, localhost, IP literals, and custom ports are refused. The HTTP client does not follow redirects and uses short timeouts. **The endpoint list is not editable through the browser or API.** Only add endpoints you own or are authorized to check, and do not publicly expose this unauthenticated learning application.
+
+**Scope:** A 2xx HTTP response is considered healthy; other responses and connection failures are marked down. This is basic endpoint availability monitoring, **not** complete distributed systems monitoring or a production-ready alerting system. There is no authentication, domain-to-address pinning, automatic incident creation, outage threshold, or notification system yet. Configure trusted DNS names only in a trusted local environment; DNS names can resolve to private infrastructure, so do not give untrusted users control of the configuration.
+
 ## Implemented features
 
 - Create and list managed services with unique service keys and environment names.
@@ -29,7 +46,7 @@ The dashboard includes an opt-in **Load demo data** button for ten fictional inf
 - Advance incident status through `OPEN`, `INVESTIGATING` and `RESOLVED`.
 - Summarize service health and active incident totals.
 - Request DTO validation and structured HTTP 400, 404 and 409 errors.
-- H2 in-memory database for development, optional PostgreSQL configuration, Docker Compose and GitHub Actions.
+- Opt-in scheduled HTTPS endpoint checks and persisted response times, HTTP status codes, observation and check histories.\n- H2 in-memory database for development, optional PostgreSQL configuration, Docker Compose and GitHub Actions.
 
 **Scope:** This is a locally runnable API prototype. It does not actively probe infrastructure, send alerts or include authentication. It is not a hosted production monitoring system.
 
@@ -98,7 +115,7 @@ Invoke-RestMethod "$base/dashboard"
 | `POST` | `/api/v1/incidents` | Open incident |
 | `GET` | `/api/v1/services/{id}/incidents` | Incident history |
 | `PATCH` | `/api/v1/incidents/{id}` | Update incident status |
-| `GET` | `/api/v1/dashboard` | Service and incident totals |\n| `POST` | `/api/v1/demo/load` | Seed fictional data (enabled only with `opspulse.demo.enabled=true`) |
+| `GET` | `/api/v1/dashboard` | Service and incident totals |\n| `GET` | `/api/v1/monitor` | Monitoring enabled status, configured target count, recent real check history |\n| `POST` | `/api/v1/demo/load` | Seed fictional data (enabled only with `opspulse.demo.enabled=true`) |
 | `GET` | `/actuator/health` | OpsPulse application status |
 
 ## Tests and CI
@@ -138,11 +155,11 @@ compose.yml            PostgreSQL and API stack
 
 ## Current limitations and roadmap
 
-- Health data is entered through APIs; there is no HTTP probing or scheduling.
+- By default health is manually entered or simulated. Optional scheduled HTTPS probes operate only when explicitly enabled and configured.
 - H2 data is in-memory and resets on application restart. Demo services are clearly identified by `demo-` keys and remain in the same in-memory database.\n- The demo-load endpoint is a write operation intended only for trusted local use. It is disabled under the PostgreSQL profile; set `opspulse.demo.enabled=false` for other environments. Do not expose this unauthenticated prototype publicly.
 - No security authentication, authorization, audit logging, alerting, OpenAPI UI, tracing or cloud deployment.
-- Browser dashboard is connected to manually submitted API data; no independent probes, alert push, or real-time background streaming.
+- Browser dashboard shows manually submitted and optional scheduled HTTPS observations; there is no alert push, automatic incident workflow, or real-time background streaming.
 - Frontend is covered by static-serving integration tests and syntax checking; automated end-to-end browser tests remain a future milestone.
-- Future milestones: **Spring Security, Flyway, scheduled HTTP probes, Testcontainers, OpenAPI, pagination and production-oriented configuration**.
+- Future milestones: **Spring Security, Flyway, secure monitoring target management, DNS/IP network restrictions, failure thresholds, automatic incidents, Testcontainers, OpenAPI, pagination and production-oriented configuration**.
 
 See [Contributing](CONTRIBUTING.md) and [Security](SECURITY.md). This repository is a learning and portfolio demonstration, not a claim of production deployment.
