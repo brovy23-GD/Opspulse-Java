@@ -26,6 +26,8 @@ opspulse:
   monitor:
     enabled: ${OPSPULSE_MONITOR_ENABLED:false}
     interval-ms: 60000
+    failure-threshold: 3
+    recovery-threshold: 2
     targets:
       - service-key: live-example-https
         name: Example HTTPS Endpoint
