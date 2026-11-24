@@ -41,8 +41,9 @@
             <h1>Infrastructure overview<span class="hero-dot">.</span></h1>
             <p>Service inventory, reported health, and incident response in one operational view.</p>
           </div>
-          <button id="create-service-toggle" class="primary-btn"><span aria-hidden="true">＋</span> Register service</button>
+          <div class="hero-actions"><button id="load-demo-data" class="secondary-btn" type="button" title="Add ten fictional services and example incidents; existing records will be kept">◇ Load demo data</button><button id="create-service-toggle" class="primary-btn"><span aria-hidden="true">＋</span> Register service</button></div>
         </div>
+        <p class="demo-disclaimer">Demo data is fictional and manually simulated. Loading it preserves existing services and incidents.</p>
         <div id="notice" role="status" aria-live="polite" hidden></div>
         <section class="summary-grid" aria-label="Current operating status">
           <article class="stat-card"><div class="stat-top"><span>TOTAL SERVICES</span><span class="stat-symbol">▤</span></div><div class="stat-number" id="count-total">—</div><div class="stat-meta">Registered inventory</div></article>
